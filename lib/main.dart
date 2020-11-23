@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_todo/services/auth.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(App());
 }
 
@@ -16,23 +17,26 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      // Initialize FlutterFire:
-      future: _initialization,
-      builder: (context, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          return const Scaffold(body: Center(child: Text("Error")));
-        }
+    return MaterialApp(
+      theme: ThemeData.dark(),
+          home: FutureBuilder(
+        // Initialize FlutterFire:
+        future: _initialization,
+        builder: (context, snapshot) {
+          // Check for errors
+          if (snapshot.hasError) {
+            return const Scaffold(body: Center(child: Text("Error")));
+          }
 
-        // Once complete, show your application
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Root();
-        }
+          // Once complete, show your application
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Root();
+          }
 
-        // Otherwise, show something whilst waiting for initialization to complete
-        return const Scaffold(body: Center(child: Text("Loading")));
-      },
+          // Otherwise, show something whilst waiting for initialization to complete
+          return const Scaffold(body: Center(child: Text("Loading")));
+        },
+      ),
     );
   }
 }
@@ -49,6 +53,19 @@ class _RootState extends State<Root> {
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Auth(auth: _auth).user,
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot){
+        if(snapshot.connectionState == ConnectionState.active){
+          if(snapshot.data?.uid == null){
+            //login screen
+            return const Scaffold(body: Center(child: Text("Loading")));
+          }else{
+            //home screen
+            return const Scaffold(body: Center(child: Text("Loading")));
+          }
+        }else{
+          return const Scaffold(body: Center(child: Text("Loading")));
+        }
+      },
     );
   }
 }
